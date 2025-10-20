@@ -95,6 +95,29 @@ graph TD
 
 ---
 
+## Libraries Used
+
+### Backend
+- **FastAPI**: For building the RESTful API.
+- **SQLAlchemy**: For database interactions and ORM.
+- **scikit-learn**: For machine learning algorithms and evaluation metrics.
+- **Pydantic**: For data validation and settings management.
+- **pytest**: For testing the backend functionality.
+
+### Frontend
+- **React**: For building the user interface.
+- **TypeScript**: For type-safe JavaScript development.
+- **Axios**: For making HTTP requests to the backend API.
+- **Recharts**: For creating interactive charts and visualizations.
+- **Lucide React**: For adding icons to the UI.
+
+### Additional Tools
+- **Mermaid.js**: For creating diagrams in Markdown.
+- **SQLite**: For lightweight database storage during development.
+- **Node.js**: For managing frontend dependencies and running the development server.
+
+---
+
 ## Code Overview
 
 ### High-Level Algorithm
