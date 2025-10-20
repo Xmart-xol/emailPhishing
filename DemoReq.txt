@@ -1,0 +1,16 @@
+Good day, @everyone. Just a reminder that for Exam presentations demonstrations, you will be presenting to another academic who does
+not know anything about your system so you must adequately explain your problem and solution. You should have a slideshow to do this.
+
+- The slideshow should be about 5-10 minutes (max 15 in general)
+- Ideally, it should briefly describe the problem and fully explain your solution and it's performance
+- Include an illustration of your model(s)/approaches
+- Clearly indicate the use of libraries
+- Explain what you have done and what still needs to be done
+- Include results/performance (preferably visualised). Ideally comparing your results with those of with state-of-the-art approches
+
+For the demo:
+
+- You do not need to train ML models (but should be able to)
+- Show an example prediction/classification - generally the full use case of your system from a user pov
+- Describe what your code does at a high level (may be done as algorithm in presentation)
+- Be able to answer question regarding your code line-by-line

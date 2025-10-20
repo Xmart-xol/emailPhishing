@@ -27,8 +27,6 @@ Phishing attacks represent one of the most significant cybersecurity threats in 
 - **Evolution:** Attackers are increasingly using AI and sophisticated social engineering techniques [Fayyad-Kazan, H., Hejase, H.J., Darwish, C.D. and Hejase, A.J., 2024. A Pilot Study to Assess the Success Rate of Email Scams by Phishing: Case in Lebanon. Contemp. Stud. Appl. Sci., 1(1), pp.1-21.]
 
 
-
-
 ### Why Work on This Problem?
 
 1. **Critical Security Gap:** Current commercial solutions are often black-box systems with limited transparency
@@ -83,152 +81,13 @@ graph TD
 **Professional Speaking Example:**
 *"Our Support Vector Machine implementation utilizes Sequential Minimal Optimization, a quadratic programming solver that efficiently handles the dual optimization problem. The algorithm constructs optimal separating hyperplanes by maximizing the margin between classes. Our implementation features an RBF kernel with the mathematical form K(x,y) = exp(-γ||x-y||²), enabling non-linear decision boundaries essential for complex phishing pattern recognition."*
 
-**Industry Context:**
-*"In enterprise security environments, linear classifiers often fail to capture the sophisticated evasion techniques employed by advanced persistent threat actors. Our RBF kernel implementation addresses this limitation by mapping input features into higher-dimensional spaces where previously inseparable patterns become linearly separable. This approach is particularly effective against polymorphic phishing campaigns that systematically vary their attack vectors."*
-
 #### **C2: Custom KNN (K-Nearest Neighbors)**
 **Professional Speaking Example:**
 *"Our K-Nearest Neighbors implementation employs a lazy learning paradigm with k=5 optimization and cosine similarity metrics. The algorithm performs instance-based classification by analyzing local neighborhood patterns within the feature space. We incorporated distance-weighted voting mechanisms to ensure that proximally closer training instances exert proportionally greater influence on classification decisions."*
 
-**Technical Implementation Detail:**
-*"Cosine similarity proves particularly effective for high-dimensional sparse text vectors, as it measures angular distance rather than Euclidean magnitude. This characteristic makes the algorithm robust against document length variations while maintaining sensitivity to lexical and syntactic patterns indicative of phishing attempts. Our implementation achieves O(log n) query complexity through optimized distance calculations."*
-
 #### **C3: Algorithm Selection & Comparison**
 **Professional Speaking Example:**
 *"Our system architecture provides algorithmic flexibility through runtime model selection, enabling security analysts to optimize performance based on operational constraints. The SVM implementation delivers superior classification accuracy at 97.3%, making it optimal for high-stakes security environments where false negatives carry significant business risk. Conversely, our KNN implementation offers enhanced interpretability and rapid retraining capabilities, ideal for dynamic threat landscapes requiring frequent model updates."*
-
-**Business Value Proposition:**
-*"This architectural approach addresses the fundamental trade-off between accuracy and operational agility. Financial institutions processing high-volume email traffic can leverage SVM for maximum threat detection, while organizations with evolving threat profiles can utilize KNN for adaptive defense strategies. Both algorithms consume identical feature representations, ensuring consistent analytical frameworks across deployment scenarios."*
-
----
-
-## 🎤 **Professional Speaking Notes for K-Nearest Neighbors (KNN)**
-
-### **Opening Statement for Custom Algorithm Implementation:**
-*"Now let's examine our custom algorithm implementations. Unlike using pre-built libraries like scikit-learn, we built these algorithms from fundamental mathematical principles. This approach gives us complete control over optimization, memory usage, and algorithmic behavior while providing full transparency for educational and audit purposes."*
-
-### **KNN Algorithm Introduction:**
-*"Our K-Nearest Neighbors implementation represents a lazy learning paradigm - meaning the algorithm doesn't build an explicit model during training. Instead, it stores all training examples and makes predictions by analyzing local neighborhood patterns in the feature space."*
-
-### **Core KNN Implementation Details:**
-
-#### **1. Training Phase (fit method):**
-**What to Say:**
-*"The training phase for KNN is remarkably simple yet powerful. We simply store the training vectors and their corresponding labels. There's no complex optimization or parameter estimation - the algorithm learns by remembering every training example. This simplicity is actually a strength, as it means our model can adapt to any data distribution without making assumptions about linear separability or feature independence."*
-
-**Technical Detail:**
-*"Our implementation stores sparse vectors efficiently, maintaining the 99.4% memory reduction we achieve through sparse representation. This means we can store thousands of training examples in the same memory footprint that dense vectors would require for dozens."*
-
-#### **2. Distance Computation:**
-**What to Say:**
-*"The heart of KNN lies in distance computation. We implement two distance metrics, each optimized for different scenarios:"*
-
-**Cosine Distance:**
-*"Cosine distance measures the angular difference between vectors, computed as 1 minus the dot product for normalized vectors. This metric is particularly effective for high-dimensional sparse text data because it's invariant to document length. Whether an email is 50 words or 500 words, cosine distance focuses on the relative importance of different terms rather than absolute frequency."*
-
-**Professional Example:**
-*"Consider two phishing emails - one short and one verbose. Traditional Euclidean distance might classify them differently due to length variations, but cosine distance recognizes their similar linguistic patterns regardless of verbosity. This makes our system robust against padding attacks where attackers add irrelevant content to evade detection."*
-
-**Euclidean Distance:**
-*"Our Euclidean implementation uses the mathematical relationship ||v1-v2||² = ||v1||² + ||v2||² - 2*v1·v2 to efficiently compute distances between sparse vectors without materializing the full vector difference. This optimization reduces computational complexity from O(d) to O(nnz) where nnz is the number of non-zero elements."*
-
-#### **3. Neighbor Selection Process:**
-**What to Say:**
-*"For each query email, we compute distances to all training examples and select the k=5 nearest neighbors. This value represents an optimal balance - fewer neighbors risk overfitting to noise, while more neighbors dilute the local signal with distant, less relevant examples."*
-
-**Technical Implementation:**
-*"Our neighbor selection uses an efficient sorting algorithm that scales as O(n log n) for n training examples. While this might seem computationally expensive, remember that we're typically dealing with 2,000 training examples, making real-time performance entirely feasible at 45-millisecond average response times."*
-
-#### **4. Voting Mechanisms:**
-**What to Say:**
-*"We implement two voting strategies that significantly impact classification performance:"*
-
-**Uniform Weighting:**
-*"Each of the 5 nearest neighbors gets an equal vote in the final classification. This democratic approach works well when neighbors are roughly equidistant and provides stable predictions."*
-
-**Distance Weighting:**
-*"Closer neighbors receive proportionally higher influence using inverse distance weighting: weight = 1/(distance + ε). This approach recognizes that a neighbor at distance 0.1 should have much more influence than one at distance 0.9. The small epsilon prevents division by zero for identical vectors."*
-
-#### **5. Probability Estimation:**
-**What to Say:**
-*"Unlike simple classification, our implementation provides probability estimates essential for security applications. Instead of just saying 'this is phishing,' we provide confidence scores like '87% probability of phishing.' This probabilistic output enables security analysts to make risk-based decisions - maybe emails with 95%+ confidence get automatically quarantined, while 60-80% confidence emails get flagged for human review."*
-
-**Business Value:**
-*"This probabilistic approach reduces false positives in production environments. Rather than binary decisions that might quarantine important legitimate emails, analysts can tune thresholds based on organizational risk tolerance."*
-
-### **Algorithm Advantages in Security Context:**
-
-#### **1. Interpretability:**
-**What to Say:**
-*"KNN provides exceptional interpretability for security applications. When our system flags an email as phishing, we can show analysts the exact 5 training examples that influenced this decision. Security teams can literally see 'this email is flagged because it resembles these known phishing attempts' with specific similarity scores."*
-
-**Professional Example:**
-*"Imagine investigating a suspicious email targeting your CFO. Our system shows that it's 94% similar to a known CEO fraud attempt from our training data, 91% similar to an urgent payment request scam, and shares linguistic patterns with three other executive impersonation attacks. This level of transparency enables forensic analysis and helps security teams understand attack evolution."*
-
-#### **2. Adaptive Learning:**
-**What to Say:**
-*"KNN naturally adapts to new attack patterns without requiring complete retraining. When we encounter a novel phishing technique, we simply add it to our training set and the algorithm immediately incorporates this knowledge into future predictions. This rapid adaptation is crucial in cybersecurity where attack vectors evolve daily."*
-
-#### **3. No Distributional Assumptions:**
-**What to Say:**
-*"Unlike parametric algorithms that assume specific data distributions, KNN makes no assumptions about how phishing emails should look. This flexibility allows it to detect completely novel attack patterns that might break statistical assumptions built into other algorithms."*
-
-### **Performance Characteristics:**
-
-#### **Computational Complexity:**
-**What to Say:**
-*"While KNN has O(n) prediction complexity where n is the training set size, our sparse vector optimizations and efficient distance computations keep response times well within real-time requirements. The 45-millisecond average processing time includes the full pipeline from text preprocessing through final classification."*
-
-#### **Memory Efficiency:**
-**What to Say:**
-*"Our sparse implementation stores only non-zero vector elements, achieving 99.4% memory reduction compared to dense representations. This means our 2,000-example training set occupies roughly 12MB instead of 1.6GB, enabling deployment on standard enterprise hardware."*
-
-### **Cross-Validation and Hyperparameter Optimization:**
-**What to Say:**
-### **Cross-Validation and Hyperparameter Optimization:**
-**What to Say:**
-*"We implemented comprehensive cross-validation functionality that tests multiple k values, distance metrics, and weighting schemes. Our systematic evaluation revealed that k=5 with cosine distance and distance weighting provides optimal performance for our feature representation, achieving 94.8% accuracy with excellent interpretability."*
-
-### **Comparison with SVM:**
-**What to Say:**
-*"While our SVM implementation achieves higher accuracy at 97.3%, KNN offers complementary strengths: immediate interpretability, rapid adaptation to new threats, and no training time requirements. In production environments, some organizations prefer KNN for threat hunting and forensic analysis, while using SVM for automated decision-making."*
-
-### **Transition to Next Section:**
-*"Having examined both our SVM and KNN implementations, let's now explore the multi-modal feature engineering pipeline that enables both algorithms to achieve state-of-the-art performance..."*
-
----
-
-## 🎯 **Key Speaking Tips for KNN Section:**
-
-### **Technical Confidence Builders:**
-1. **Emphasize Custom Implementation:** "Built from mathematical first principles"
-2. **Highlight Memory Efficiency:** "99.4% memory reduction through sparse optimization"
-3. **Stress Real-world Performance:** "45-millisecond response times in production"
-4. **Connect to Security Needs:** Always relate features to cybersecurity applications
-
-### **Professional Transition Phrases:**
-- *"This brings us to a critical implementation detail..."*
-- *"From a cybersecurity perspective, this means..."*
-- *"The business impact of this technical choice is..."*
-- *"In production environments, this translates to..."*
-
-### **Audience Engagement Techniques:**
-1. **Pause after explaining cosine vs Euclidean:** *"Any questions about why we chose these specific distance metrics?"*
-2. **Interactive moment:** *"Can anyone think of a scenario where interpretability would be crucial in email security?"*
-3. **Real-world connection:** *"How many of you have seen false positive alerts in your own email systems?"*
-
-### **Visual Cues During Presentation:**
-- **Distance explanation:** Use hands to show "angular" vs "straight-line" distance
-- **Neighbor selection:** Count to 5 on fingers when explaining k=5
-- **Weighting:** Use gesture showing "closer = more influence"
-- **Probability:** Use percentage hand gestures (thumb+finger for ~90%)
-
-### **Key Technical Terms to Emphasize:**
-- **"Lazy learning paradigm"**
-- **"Instance-based classification"**
-- **"Cosine similarity for high-dimensional sparse vectors"**
-- **"Distance-weighted voting mechanisms"**
-- **"Probabilistic output for risk-based decisions"**
 
 ---
 
