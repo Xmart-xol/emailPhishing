@@ -1,0 +1,62 @@
+Component & Deployment Diagrams
+
+At some point you will need to show how you’re going to deploy your system and its respective components. For this you will use Component & Deployment Diagrams.
+
+At this point, I should point out that these diagrams are not entirely part of the UML standard. We have these as the official UML Deployment and UML Component diagrams do not give us exactly what we need, especially when it comes to types of deployments. As such, over the years, our own ACSSE standard of a combined diagram has evolved. If the UML standard gives us what we need, I will update this guide.
+
+The goal of this diagram is very simple: show which components will be deployed to which parts (hardware) of your system. This is shown using three distinct parts:
+
+Artefacts and Components, contained within
+Nodes, connected by
+Communication paths
+
+Artefacts & Components
+
+Inside the node, you name the elements that are contained within the node. We have two types of elements:
+
+Artefacts. These are concrete elements that you produce for your system. They are normally subsystems or complete systems. Indicated using “«artefact»” with the name.
+Components. Modular parts of the a system that you have incorporated. Indicated using “«component»” with the name.
+This is all in a rectangle inside the node
+
+These components can be separate subsystems of your main system, as well as external components to your system.
+
+Nodes can also contain your databases. Fairly simply shown here:
+
+So, what is a node then?
+
+Nodes
+
+Nodes represent the execution resources of your system that will either process or store data. This can be hardware or software environments and includes servers, sensors, and other peripherals. A node is indicated using a box with the node’s name in it, as shown here:
+
+Hardware Nodes
+Hardware nodes show the hardware execution environment with the typical user of the node (named after the generalised Actor) below, as shown here:
+
+
+Software Nodes
+Software nodes show software execution environments. This can range from specific Operating Systems to more generalised environments, such as web browsers. This is shown below.
+
+
+Other Nodes
+Finally, specialised nodes can also exist. These are generally used for nodes where you do not care about the specific makeup. A prime example will be Content Distribution Networks (CDN), as shown here:
+
+
+Nodeception
+Knowing how a system works, you know that a software component runs on some base software on some hardware. If this makeup is known, you can show it, as seen here:
+
+Communication Paths
+
+These nodes need to communicate with one another as well. This shown using communication paths. We will use two main types of communication paths:
+
+Normal communication. This is normal two-way communication, between servers, servers and clients, and clients. Shown using a solid line, along with the type of communication (TCP/IP, UDP, etc.).
+
+
+Application. You can also specify the application level protocol that will be used for the communication, e.g. HTTP, etc.
+
+
+Let’s put it all together:
+
+
+
+You can see that some webserver (which we, at this stage, don’t care about the origin) is running subsystem1. The Administrator has a device (some device, we don’t care) that is running a web browser that communicated with the web server (using HTTPS over TCP/IP) and has loaded this subsystem1.
+
+Actually pretty simple, don’t you think?

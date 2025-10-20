@@ -1,0 +1,47 @@
+{
+  "f1_mean": 0.5333333333333333,
+  "f1_std": 0.45215533220835125,
+  "f1_values": [
+    0.6666666666666666,
+    0.0,
+    0.0,
+    1.0,
+    1.0
+  ],
+  "recall_mean": 0.6,
+  "recall_std": 0.48989794855663565,
+  "recall_values": [
+    1.0,
+    0.0,
+    0.0,
+    1.0,
+    1.0
+  ],
+  "precision_mean": 0.5,
+  "precision_std": 0.4472135954999579,
+  "precision_values": [
+    0.5,
+    0.0,
+    0.0,
+    1.0,
+    1.0
+  ],
+  "accuracy_mean": 0.6,
+  "accuracy_std": 0.37416573867739417,
+  "accuracy_values": [
+    0.5,
+    0.0,
+    0.5,
+    1.0,
+    1.0
+  ],
+  "cv_folds": 5,
+  "cv_type": "cross_validation",
+  "preprocessing": {
+    "original_samples": 10,
+    "final_samples": 10,
+    "removed_samples": 0,
+    "removal_rate": 0.0
+  },
+  "processing_method": "standard"
+}

@@ -1,0 +1,11 @@
+text,label
+"URGENT! Your account will be suspended unless you verify immediately! Click here: http://fake-bank.com/verify","phish"
+"Dear valued customer, please update your password at our secure portal for enhanced security","phish"
+"WARNING: Suspicious activity detected on your account! Verify your identity NOW or lose access forever!","phish"
+"Congratulations! You've won $1,000,000 in our lottery! Click here to claim your prize immediately!","phish"
+"Your credit card has been charged $500. If this wasn't you, click here to dispute immediately","phish"
+"Meeting scheduled for tomorrow at 2 PM in conference room B. Please review the attached agenda","ham"
+"Weekly newsletter with updates about our products and services. Unsubscribe anytime","ham"
+"Thank you for your recent purchase. Your order #12345 will arrive in 3-5 business days","ham"
+"Reminder: Your subscription expires next month. Renew at your convenience through your account","ham"
+"Project status update: Phase 1 completed successfully. Moving to Phase 2 next week","ham"
