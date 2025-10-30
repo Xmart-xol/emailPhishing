@@ -19,9 +19,38 @@ interface ClassificationResult {
       legitimate_indicators_count: number;
     };
     technical_analysis?: {
-      domain_analysis: string;
-      url_analysis: string;
-      header_analysis: string;
+      domain_analysis: {
+        total_domains: number;
+        domains_found: string[];
+        suspicious_indicators: string[];
+        legitimate_indicators: string[];
+        risk_score: number;
+        analysis_summary: string;
+      };
+      url_analysis: {
+        total_urls: number;
+        urls_found: string[];
+        suspicious_indicators: string[];
+        legitimate_indicators: string[];
+        risk_score: number;
+        analysis_summary: string;
+      };
+      header_analysis: {
+        headers_found: any;
+        suspicious_indicators: string[];
+        legitimate_indicators: string[];
+        risk_score: number;
+        analysis_summary: string;
+      };
+      content_analysis: {
+        phishing_keywords_count: number;
+        urgency_keywords_count: number;
+        financial_keywords_count: number;
+        suspicious_indicators: string[];
+        legitimate_indicators: string[];
+        risk_score: number;
+        analysis_summary: string;
+      };
     };
   };
 }
@@ -347,15 +376,39 @@ john.smith@company.com`
                   <div className="analysis-grid">
                     <div className="analysis-item">
                       <h5>Domain Analysis</h5>
-                      <p>{result.explanation.technical_analysis?.domain_analysis}</p>
+                      <p>Total Domains: {result.explanation.technical_analysis?.domain_analysis.total_domains}</p>
+                      <p>Domains Found: {result.explanation.technical_analysis?.domain_analysis.domains_found.join(', ')}</p>
+                      <p>Suspicious Indicators: {result.explanation.technical_analysis?.domain_analysis.suspicious_indicators.join(', ')}</p>
+                      <p>Legitimate Indicators: {result.explanation.technical_analysis?.domain_analysis.legitimate_indicators.join(', ')}</p>
+                      <p>Risk Score: {result.explanation.technical_analysis?.domain_analysis.risk_score}</p>
+                      <p>Summary: {result.explanation.technical_analysis?.domain_analysis.analysis_summary}</p>
                     </div>
                     <div className="analysis-item">
                       <h5>URL Analysis</h5>
-                      <p>{result.explanation.technical_analysis?.url_analysis}</p>
+                      <p>Total URLs: {result.explanation.technical_analysis?.url_analysis.total_urls}</p>
+                      <p>URLs Found: {result.explanation.technical_analysis?.url_analysis.urls_found.join(', ')}</p>
+                      <p>Suspicious Indicators: {result.explanation.technical_analysis?.url_analysis.suspicious_indicators.join(', ')}</p>
+                      <p>Legitimate Indicators: {result.explanation.technical_analysis?.url_analysis.legitimate_indicators.join(', ')}</p>
+                      <p>Risk Score: {result.explanation.technical_analysis?.url_analysis.risk_score}</p>
+                      <p>Summary: {result.explanation.technical_analysis?.url_analysis.analysis_summary}</p>
                     </div>
                     <div className="analysis-item">
                       <h5>Header Analysis</h5>
-                      <p>{result.explanation.technical_analysis?.header_analysis}</p>
+                      <p>Headers Found: {JSON.stringify(result.explanation.technical_analysis?.header_analysis.headers_found)}</p>
+                      <p>Suspicious Indicators: {result.explanation.technical_analysis?.header_analysis.suspicious_indicators.join(', ')}</p>
+                      <p>Legitimate Indicators: {result.explanation.technical_analysis?.header_analysis.legitimate_indicators.join(', ')}</p>
+                      <p>Risk Score: {result.explanation.technical_analysis?.header_analysis.risk_score}</p>
+                      <p>Summary: {result.explanation.technical_analysis?.header_analysis.analysis_summary}</p>
+                    </div>
+                    <div className="analysis-item">
+                      <h5>Content Analysis</h5>
+                      <p>Phishing Keywords Count: {result.explanation.technical_analysis?.content_analysis.phishing_keywords_count}</p>
+                      <p>Urgency Keywords Count: {result.explanation.technical_analysis?.content_analysis.urgency_keywords_count}</p>
+                      <p>Financial Keywords Count: {result.explanation.technical_analysis?.content_analysis.financial_keywords_count}</p>
+                      <p>Suspicious Indicators: {result.explanation.technical_analysis?.content_analysis.suspicious_indicators.join(', ')}</p>
+                      <p>Legitimate Indicators: {result.explanation.technical_analysis?.content_analysis.legitimate_indicators.join(', ')}</p>
+                      <p>Risk Score: {result.explanation.technical_analysis?.content_analysis.risk_score}</p>
+                      <p>Summary: {result.explanation.technical_analysis?.content_analysis.analysis_summary}</p>
                     </div>
                   </div>
                 </div>
