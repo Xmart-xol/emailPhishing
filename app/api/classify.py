@@ -2,7 +2,9 @@
 Classification API endpoint for real-time email phishing detection.
 """
 import time
-from typing import Dict, Any, List
+import re
+import urllib.parse
+from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, HTTPException, Depends
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -34,6 +36,294 @@ def get_services():
     return db_service, storage_service, training_service, model_registry
 
 
+def analyze_email_content(text_content: str) -> Dict[str, Any]:
+    """Perform comprehensive technical analysis of email content."""
+    
+    # Domain Analysis
+    domain_analysis = analyze_domains(text_content)
+    
+    # URL Analysis  
+    url_analysis = analyze_urls(text_content)
+    
+    # Header Analysis
+    header_analysis = analyze_headers(text_content)
+    
+    # Content Analysis
+    content_analysis = analyze_content_patterns(text_content)
+    
+    return {
+        "domain_analysis": domain_analysis,
+        "url_analysis": url_analysis,
+        "header_analysis": header_analysis,
+        "content_analysis": content_analysis
+    }
+
+
+def analyze_domains(text_content: str) -> Dict[str, Any]:
+    """Analyze domains found in the email content."""
+    # Extract domains from email addresses and URLs
+    email_pattern = r'\b[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Z|a-z]{2,})\b'
+    url_pattern = r'https?://([A-Za-z0-9.-]+\.[A-Z|a-z]{2,})'
+    
+    email_domains = re.findall(email_pattern, text_content, re.IGNORECASE)
+    url_domains = re.findall(url_pattern, text_content, re.IGNORECASE)
+    
+    all_domains = list(set(email_domains + url_domains))
+    
+    # Analyze each domain for suspicious characteristics
+    suspicious_indicators = []
+    legitimate_indicators = []
+    
+    for domain in all_domains:
+        domain_lower = domain.lower()
+        
+        # Check for suspicious patterns
+        if len(domain_lower) > 30:
+            suspicious_indicators.append(f"Long domain name: {domain}")
+        
+        if re.search(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', domain):
+            suspicious_indicators.append(f"IP address instead of domain: {domain}")
+            
+        if domain_lower.count('-') > 3:
+            suspicious_indicators.append(f"Multiple hyphens in domain: {domain}")
+            
+        if re.search(r'(secure|login|verify|update|confirm|account)', domain_lower):
+            suspicious_indicators.append(f"Security-themed domain: {domain}")
+            
+        # Check for common typosquatting patterns
+        common_brands = ['paypal', 'amazon', 'google', 'microsoft', 'apple', 'facebook', 'twitter']
+        for brand in common_brands:
+            if brand in domain_lower and domain_lower != f"{brand}.com":
+                suspicious_indicators.append(f"Possible typosquatting of {brand}: {domain}")
+        
+        # Check for legitimate indicators
+        well_known_domains = [
+            'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com',
+            'amazon.com', 'google.com', 'microsoft.com', 'apple.com', 'paypal.com'
+        ]
+        if domain_lower in well_known_domains:
+            legitimate_indicators.append(f"Well-known legitimate domain: {domain}")
+    
+    return {
+        "total_domains": len(all_domains),
+        "domains_found": all_domains[:10],  # Limit to first 10 for display
+        "suspicious_indicators": suspicious_indicators,
+        "legitimate_indicators": legitimate_indicators,
+        "risk_score": min(len(suspicious_indicators) * 20, 100),
+        "analysis_summary": f"Found {len(all_domains)} unique domains with {len(suspicious_indicators)} suspicious indicators"
+    }
+
+
+def analyze_urls(text_content: str) -> Dict[str, Any]:
+    """Analyze URLs found in the email content."""
+    # Extract all URLs
+    url_pattern = r'https?://[^\s<>"\'`|(){}[\]]+|www\.[^\s<>"\'`|(){}[\]]+|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/[^\s<>"\'`|(){}[\]]*'
+    urls = re.findall(url_pattern, text_content, re.IGNORECASE)
+    
+    suspicious_indicators = []
+    legitimate_indicators = []
+    
+    for url in urls:
+        url_lower = url.lower()
+        
+        # Parse URL components
+        try:
+            parsed = urllib.parse.urlparse(url if url.startswith('http') else f'http://{url}')
+            domain = parsed.netloc
+            path = parsed.path
+            query = parsed.query
+            
+            # Check for suspicious URL patterns
+            if len(url) > 100:
+                suspicious_indicators.append(f"Very long URL: {url[:50]}...")
+                
+            if query and len(query) > 50:
+                suspicious_indicators.append(f"Long query string in URL: {domain}")
+                
+            if path.count('/') > 5:
+                suspicious_indicators.append(f"Deep path structure: {domain}{path}")
+                
+            # Check for URL shorteners
+            shorteners = ['bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'ow.ly', 'short.link']
+            if any(shortener in domain for shortener in shorteners):
+                suspicious_indicators.append(f"URL shortener detected: {domain}")
+                
+            # Check for suspicious parameters
+            suspicious_params = ['redirect', 'url', 'link', 'goto', 'target']
+            if any(param in query.lower() for param in suspicious_params):
+                suspicious_indicators.append(f"Redirect parameter detected: {domain}")
+                
+            # Check for HTTPS
+            if url.startswith('http://'):
+                suspicious_indicators.append(f"Non-HTTPS URL: {domain}")
+            elif url.startswith('https://'):
+                legitimate_indicators.append(f"HTTPS URL: {domain}")
+                
+        except Exception as e:
+            suspicious_indicators.append(f"Malformed URL: {url[:30]}...")
+    
+    return {
+        "total_urls": len(urls),
+        "urls_found": urls[:5],  # Limit to first 5 for display
+        "suspicious_indicators": suspicious_indicators,
+        "legitimate_indicators": legitimate_indicators,
+        "risk_score": min(len(suspicious_indicators) * 15, 100),
+        "analysis_summary": f"Found {len(urls)} URLs with {len(suspicious_indicators)} suspicious indicators"
+    }
+
+
+def analyze_headers(text_content: str) -> Dict[str, Any]:
+    """Analyze email header information if present in content."""
+    suspicious_indicators = []
+    legitimate_indicators = []
+    
+    # Look for header-like patterns in the text
+    header_patterns = {
+        'from': r'from:\s*(.+)',
+        'subject': r'subject:\s*(.+)',
+        'reply-to': r'reply-to:\s*(.+)',
+        'return-path': r'return-path:\s*(.+)',
+        'message-id': r'message-id:\s*(.+)',
+        'received': r'received:\s*(.+)'
+    }
+    
+    found_headers = {}
+    for header_name, pattern in header_patterns.items():
+        matches = re.findall(pattern, text_content, re.IGNORECASE | re.MULTILINE)
+        if matches:
+            found_headers[header_name] = matches[:3]  # Limit to first 3 matches
+    
+    # Analyze From field
+    if 'from' in found_headers:
+        from_addresses = found_headers['from']
+        for from_addr in from_addresses:
+            # Check for display name spoofing
+            if '<' in from_addr and '>' in from_addr:
+                display_name = from_addr.split('<')[0].strip()
+                email_addr = from_addr.split('<')[1].split('>')[0]
+                
+                if display_name and email_addr:
+                    # Check if display name suggests one domain but email is from another
+                    display_lower = display_name.lower()
+                    email_lower = email_addr.lower()
+                    
+                    brands = ['paypal', 'amazon', 'google', 'microsoft', 'apple', 'bank']
+                    for brand in brands:
+                        if brand in display_lower and brand not in email_lower:
+                            suspicious_indicators.append(f"Display name spoofing: '{display_name}' vs {email_addr}")
+    
+    # Analyze Subject
+    if 'subject' in found_headers:
+        subjects = found_headers['subject']
+        for subject in subjects:
+            subject_lower = subject.lower()
+            
+            # Check for urgent/phishing keywords
+            urgent_keywords = ['urgent', 'immediate', 'action required', 'verify', 'suspended', 'expires']
+            if any(keyword in subject_lower for keyword in urgent_keywords):
+                suspicious_indicators.append(f"Urgent language in subject: {subject[:50]}...")
+                
+            # Check for excessive punctuation
+            if subject.count('!') > 2 or subject.count('?') > 2:
+                suspicious_indicators.append(f"Excessive punctuation in subject: {subject[:50]}...")
+    
+    # Check for Reply-To mismatches
+    if 'from' in found_headers and 'reply-to' in found_headers:
+        from_domains = [addr.split('@')[-1].split('>')[0] for addr in found_headers['from'] if '@' in addr]
+        reply_domains = [addr.split('@')[-1].split('>')[0] for addr in found_headers['reply-to'] if '@' in addr]
+        
+        for from_domain, reply_domain in zip(from_domains, reply_domains):
+            if from_domain != reply_domain:
+                suspicious_indicators.append(f"Reply-To mismatch: From {from_domain}, Reply-To {reply_domain}")
+    
+    # If no obvious headers found, analyze the text for header-like information
+    if not found_headers:
+        # Look for sender information in the text
+        sender_patterns = [
+            r'from[:\s]+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})',
+            r'sent by[:\s]+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})',
+            r'sender[:\s]+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})'
+        ]
+        
+        for pattern in sender_patterns:
+            matches = re.findall(pattern, text_content, re.IGNORECASE)
+            if matches:
+                found_headers['inferred_sender'] = matches[:2]
+                break
+    
+    return {
+        "headers_found": found_headers,
+        "suspicious_indicators": suspicious_indicators,
+        "legitimate_indicators": legitimate_indicators,
+        "risk_score": min(len(suspicious_indicators) * 25, 100),
+        "analysis_summary": f"Analyzed email headers, found {len(suspicious_indicators)} suspicious indicators"
+    }
+
+
+def analyze_content_patterns(text_content: str) -> Dict[str, Any]:
+    """Analyze content patterns for phishing indicators."""
+    suspicious_indicators = []
+    legitimate_indicators = []
+    
+    text_lower = text_content.lower()
+    
+    # Phishing keywords and phrases
+    phishing_keywords = [
+        'verify your account', 'account suspended', 'click here', 'act now',
+        'limited time', 'expires today', 'confirm identity', 'update payment',
+        'security alert', 'unusual activity', 'login attempt', 'winner',
+        'congratulations', 'claim now', 'free money', 'urgent action'
+    ]
+    
+    urgency_keywords = [
+        'immediate', 'urgent', 'asap', 'expires', 'deadline', 'limited time',
+        'act now', 'hurry', 'don\'t delay', 'final notice'
+    ]
+    
+    financial_keywords = [
+        'bank account', 'credit card', 'payment', 'refund', 'money',
+        'transaction', 'billing', 'invoice', 'charge', 'fee'
+    ]
+    
+    # Count keyword occurrences
+    phishing_count = sum(1 for keyword in phishing_keywords if keyword in text_lower)
+    urgency_count = sum(1 for keyword in urgency_keywords if keyword in text_lower)
+    financial_count = sum(1 for keyword in financial_keywords if keyword in text_lower)
+    
+    if phishing_count > 0:
+        suspicious_indicators.append(f"Contains {phishing_count} phishing-related keywords")
+    
+    if urgency_count > 2:
+        suspicious_indicators.append(f"High urgency language detected ({urgency_count} indicators)")
+    
+    if financial_count > 3:
+        suspicious_indicators.append(f"Multiple financial terms detected ({financial_count} terms)")
+    
+    # Check for suspicious patterns
+    if re.search(r'\$\d+', text_content):
+        suspicious_indicators.append("Contains monetary amounts")
+    
+    if len(re.findall(r'[A-Z]{3,}', text_content)) > 5:
+        suspicious_indicators.append("Excessive use of capital letters")
+    
+    # Check for legitimate indicators
+    if any(phrase in text_lower for phrase in ['unsubscribe', 'privacy policy', 'terms of service']):
+        legitimate_indicators.append("Contains standard email footer elements")
+    
+    if re.search(r'\d{4}-\d{4}-\d{4}-\d{4}', text_content):
+        suspicious_indicators.append("Contains credit card-like number pattern")
+    
+    return {
+        "phishing_keywords_count": phishing_count,
+        "urgency_keywords_count": urgency_count,
+        "financial_keywords_count": financial_count,
+        "suspicious_indicators": suspicious_indicators,
+        "legitimate_indicators": legitimate_indicators,
+        "risk_score": min((phishing_count * 10) + (urgency_count * 5) + (financial_count * 3), 100),
+        "analysis_summary": f"Content analysis detected {len(suspicious_indicators)} suspicious patterns"
+    }
+
+
 @router.post("/classify", response_model=ClassificationResultDTO)
 @limiter.limit("10/minute")  # Rate limit: 10 requests per minute per IP
 async def classify_email(
@@ -53,6 +343,9 @@ async def classify_email(
         raise HTTPException(status_code=400, detail="No email content provided")
     
     try:
+        # Perform comprehensive email analysis
+        email_analysis = analyze_email_content(text_content)
+        
         # Load the real production model
         print(f"Loading {classify_request.model} model...")
         
@@ -127,7 +420,7 @@ async def classify_email(
         label = "phish" if is_phishing else "ham"
         processing_time = (time.time() - start_time) * 1000
         
-        # Create detailed explanation
+        # Create detailed explanation with real technical analysis
         risk_level = "HIGH" if confidence > 0.8 else "MEDIUM" if confidence > 0.6 else "LOW"
         
         explanation = {
@@ -147,6 +440,10 @@ async def classify_email(
                 "processing_method": "real_model_prediction"
             },
             "technical_analysis": {
+                "domain_analysis": email_analysis["domain_analysis"],
+                "url_analysis": email_analysis["url_analysis"],
+                "header_analysis": email_analysis["header_analysis"],
+                "content_analysis": email_analysis["content_analysis"],
                 "vectorization": f"BoW + Char N-grams + Heuristics ({X.shape[1] if hasattr(X, 'shape') else 'sparse'} features)",
                 "model_algorithm": f"{classify_request.model.upper()} Classifier",
                 "confidence_source": "Model decision function" if classify_request.model == "svm" else "KNN probability"
@@ -182,7 +479,6 @@ async def classify_email(
                     "processing_time": processing_time
                 })
                 
-                # 🔧 FIX: Update the total_classifications counter for this model
                 connection.execute(text("""
                     UPDATE runs 
                     SET total_classifications = total_classifications + 1 
