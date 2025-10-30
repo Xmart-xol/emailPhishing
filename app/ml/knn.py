@@ -8,7 +8,7 @@ from ..ml.features import SparseMatrix, SparseVector
 
 
 class KNNClassifier:
-    """K-Nearest Neighbors classifier implemented from scratch."""
+    """K-Nearest Neighbors classifier implemented from scratch.."""
     
     def __init__(self):
         self.X_train: SparseMatrix = None

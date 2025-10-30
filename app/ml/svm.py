@@ -9,7 +9,7 @@ from ..ml.features import SparseMatrix, SparseVector
 
 
 class SVMClassifier:
-    """SVM classifier implemented from scratch using SMO algorithm."""
+    """SVM classifier implemented from scratch using SMO algorithm.."""
     
     def __init__(
         self,
